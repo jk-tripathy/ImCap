@@ -11,7 +11,7 @@ class Encoder_CNN(nn.Module):
         self.lin = nn.Linear(147852, context_dim)
 
     def forward(self, x):
-        x = x['pixel_values'].squeeze(dim=1)
+        x = x.squeeze(dim=1)
         output = self.conv(x)
         output = F.relu(output)
         output = torch.flatten(output, start_dim=1)
@@ -23,13 +23,13 @@ class Encoder_CNN(nn.Module):
 class Encoder_ResNet(nn.Module):
     def __init__(self, context_dim):
         super().__init__()
-        self.model = ResNetModel.from_pretrained("microsoft/resnet-152")
+        self.model = ResNetModel.from_pretrained("microsoft/resnet-50")
         self.lin = nn.Linear(100352, context_dim)
 
     def forward(self, x):
-        x['pixel_values'] = x['pixel_values'].squeeze(dim=1)
+        x = x.squeeze(dim=1)
         with torch.no_grad():
-            outputs = self.model(**x)
+            outputs = self.model(pixel_values=x)
 
         output = torch.flatten(outputs.last_hidden_state, start_dim=1)
         output = self.lin(output)
