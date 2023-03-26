@@ -27,7 +27,6 @@ class Decoder_Word2Vec(nn.Module):
     def __init__(self, pretrained_embeddings, context_dim, embedding_dim, hidden_dim, vocab_size, num_layers):
         super().__init__()
         self.embedding = nn.Embedding.from_pretrained(pretrained_embeddings, freeze=True)
-
         self.lstm = nn.LSTM(context_dim + embedding_dim, hidden_dim, num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_dim, vocab_size)
 

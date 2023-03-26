@@ -8,8 +8,9 @@ from decoder import Decoder_Vanilla, Decoder_Word2Vec
 
 class Model(pl.LightningModule):
     def __init__(self, context_dim, embedding_dim, hidden_dim, max_len, vocab_size, word_to_idx, idx_to_word,
-                 pretrained_embeds, num_layers=1, doBaseline=True):
+                 pretrained_embeds, num_layers=4, doBaseline=True):
         super().__init__()
+        self.save_hyperparameters()
         self.doBaseline = doBaseline
         self.max_len = max_len
         self.vocab_size = vocab_size
@@ -20,7 +21,7 @@ class Model(pl.LightningModule):
             self.dec_vanilla = Decoder_Vanilla(context_dim, embedding_dim, hidden_dim, vocab_size, num_layers)
         else:
             self.enc_resnet = Encoder_ResNet(context_dim)
-            self.dec_word2vec = Decoder_Word2Vec(pretrained_embeds, context_dim, 300, hidden_dim, vocab_size, num_layers)
+            self.dec_word2vec = Decoder_Word2Vec(pretrained_embeds, context_dim, embedding_dim, hidden_dim, vocab_size, num_layers)
 
         self.criterion = nn.CrossEntropyLoss(ignore_index=0)
         self.bleu1 = BLEUScore(n_gram=1)
@@ -76,9 +77,10 @@ class Model(pl.LightningModule):
         bleu1_score = self.bleu1(pred_text, caption_text).item()
         bleu4_score = self.bleu4(pred_text, caption_text).item()
 
-        self.log("val loss ", loss, prog_bar=True, logger=True)
-        self.log("val BLEU1 ", bleu1_score, prog_bar=True, logger=True)
-        self.log("val BLEU4 ", bleu4_score, prog_bar=True, logger=True)
+        self.log("val loss", loss, prog_bar=True, logger=True)
+        self.log("val BLEU1", bleu1_score, prog_bar=True, logger=True)
+        self.log("val BLEU4", bleu4_score, prog_bar=True, logger=True)
+        return {'val loss': loss, 'val BLEU1': bleu1_score, 'val BLEU4': bleu4_score}
 
     def test_step(self, batch, idx):
         hidden = None
@@ -113,9 +115,10 @@ class Model(pl.LightningModule):
         bleu1_score = self.bleu1(pred_text, caption_text).item()
         bleu4_score = self.bleu4(pred_text, caption_text).item()
 
-        self.log("test loss ", loss, prog_bar=True, logger=True)
-        self.log("test BLEU1 ", bleu1_score, prog_bar=True, logger=True)
-        self.log("test BLEU4 ", bleu4_score, prog_bar=True, logger=True)
+        self.log("test loss", loss, prog_bar=True, logger=True)
+        self.log("test BLEU1", bleu1_score, prog_bar=True, logger=True)
+        self.log("test BLEU4", bleu4_score, prog_bar=True, logger=True)
+        return {'test loss': loss, 'test BLEU1': bleu1_score, 'test BLEU4': bleu4_score}
 
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=3e-4)

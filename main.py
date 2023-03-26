@@ -12,7 +12,6 @@ if __name__ == "__main__":
     caption_path = 'flikr8k/captions.txt'
 
     df = pd.read_csv(caption_path)
-    df = df[:100]
 
     dm = FlikrDataModule(
         df=df,
@@ -37,11 +36,13 @@ if __name__ == "__main__":
     )
 
     trainer = pl.Trainer(
-        max_epochs=10,
+        max_epochs=25,
         accelerator='gpu',
         devices=1,
-        num_sanity_val_steps=0,
-        default_root_dir=os.getcwd()
+        num_sanity_val_steps=25,
+        log_every_n_steps=100,
+        default_root_dir=os.getcwd(),
+        enable_checkpointing=False,
     )
 
     trainer.fit(model, dm)
