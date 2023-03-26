@@ -1,5 +1,5 @@
 import pandas as pd
-from data import FlikrDataModule, FlikrData
+from data import FlikrDataModule, FlikrData, preproc_text
 
 if __name__ == "__main__":
     image_path = 'flikr8k/Images/'
@@ -23,4 +23,7 @@ if __name__ == "__main__":
     print(len(dm.test_dataloader()))
 
     tdm = FlikrData(df, image_path)
-    print(tdm.__getitem__(0))
+    print(tdm.__getitem__(69))
+
+
+
